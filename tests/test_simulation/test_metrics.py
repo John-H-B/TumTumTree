@@ -1,3 +1,8 @@
+"""
+Functionality for tracking experimental metrics
+"""
+
+
 from tumtumtree.simulation.metrics import FakeFunction
 def test_fake_function():
     expected = 1
