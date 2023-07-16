@@ -10,11 +10,13 @@ GENERATE SHOULD RETURN EITHER A PANDAS DATAFRAME OR A NUMPY DATA FRAME
 THESE SHOULD ALWAYS HAS THE SAME NUMBER OF COLUMNS
 """
 
-class BayesianTwoArmNormal():
+
+class BaseDataGeneratingProcess():
+    simulation_object_type = 'DataGeneratingProcess'
+
     def __init__(self, **kwargs):
         self.stored_kwargs = dict(**kwargs)
         self.check_all_and_only_expected_kwargs_available()
-
         self.reset(**self.stored_kwargs)
 
     def check_all_and_only_expected_kwargs_available(self):
@@ -26,12 +28,20 @@ class BayesianTwoArmNormal():
         difference {expected.symmetric_difference(stored)},
         should be exactly {{'self'}}"""
 
-
     def expected_kwargs(self):
         expected_arguments = set(inspect.getfullargspec(self.reset).args)
         return expected_arguments
-    def generate(self, simulator=None):
 
+    def generate(self, simulator=None):
+        raise NotImplementedError
+
+    def reset(self):
+        raise NotImplementedError
+
+
+class TwoArmNormal(BaseDataGeneratingProcess):
+
+    def generate(self, simulator=None):
         sample_1 = np.random.normal(self.mu1, self.sigma1, self.size1)
         sample_2 = np.random.normal(self.mu2, self.sigma2, self.size2)
 
