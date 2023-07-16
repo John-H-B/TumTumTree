@@ -33,9 +33,11 @@ class BaseDataGeneratingProcess():
         return expected_arguments
 
     def generate(self, simulator=None):
+        """Anything generated randomly at each simulation step should be in here"""
         raise NotImplementedError
 
     def reset(self):
+        """Anything generated randomly and fixed for each simulation step should be in here"""
         raise NotImplementedError
 
 
@@ -58,4 +60,25 @@ class TwoArmNormal(BaseDataGeneratingProcess):
         self.sigma2 = get_bounded_continuous_parameter(sigma2, gte_bound=0)
         self.size1 = get_discrete_parameter(size1)
         self.size2 = get_discrete_parameter(size2)
+
+class TwoArmNormal_PoissonVaryingSizes(BaseDataGeneratingProcess):
+    def generate(self, simulator=None):
+        size1 = np.random.poisson(lam=self.lam1)
+        size2 = np.random.poisson(lam=self.lam2)
+        sample_1 = np.random.normal(self.mu1, self.sigma1, size1)
+        sample_2 = np.random.normal(self.mu2, self.sigma2, size2)
+
+        df1 = pd.DataFrame({'arm': 1,'value': sample_1})
+        df2 = pd.DataFrame({'arm': 2, 'value': sample_2})
+
+        return_data = pd.concat((df1,df2),axis=0)
+        print(return_data)
+
+    def reset(self, mu1, mu2, sigma1, sigma2, lam1, lam2):
+        self.mu1 = get_continuous_parameter(mu1)
+        self.mu2 = get_continuous_parameter(mu2)
+        self.sigma1 = get_bounded_continuous_parameter(sigma1, gte_bound=0)
+        self.sigma2 = get_bounded_continuous_parameter(sigma2, gte_bound=0)
+        self.lam1 = get_bounded_continuous_parameter(lam1, gt_bound=0)
+        self.lam2 = get_bounded_continuous_parameter(lam2, gt_bound=0)
 
